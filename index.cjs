@@ -22,10 +22,6 @@ class NeuPack {
           this.keys[index] = input[index][this.id]
           this.data[input[index][this.id]] = input[index]
         }
-        // NeuPack.each(input, el => {
-        // if (el[id]) this.keys.push(el[id])
-        // })
-        // this.data = NeuPack.toObject(input, id)
       } else if (is.object(input)) {
         this.keys.push(input[id])
         this.data[input[id]] = input
@@ -170,6 +166,36 @@ class NeuPack {
     return Promise.all(output)
   }
 
+  all (callback) {
+    const output = new Array(this.length)
+    let index = -1
+    while (++index < this.length) {
+      const key = this.keys[index]
+      output[index] = callback(this.data[key], key, index)
+    }
+    return Promise.all(output)
+  }
+
+  allSettled (callback) {
+    const output = new Array(this.length)
+    let index = -1
+    while (++index < this.length) {
+      const key = this.keys[index]
+      output[index] = callback(this.data[key], key, index)
+    }
+    return Promise.allSettled(output)
+  }
+
+  any (callback) {
+    const output = new Array(this.length)
+    let index = -1
+    while (++index < this.length) {
+      const key = this.keys[index]
+      output[index] = callback(this.data[key], key, index)
+    }
+    return Promise.any(output)
+  }
+
   reduce (callback, container) {
     let index = -1
     while (++index < this.length) {
@@ -275,6 +301,36 @@ class NeuPack {
     return Promise.all(output)
   }
 
+  static all (array, callback) {
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    while (++index < length) {
+      output[index] = callback(array[index], index)
+    }
+    return Promise.all(output)
+  }
+
+  static allSettled (array, callback) {
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    while (++index < length) {
+      output[index] = callback(array[index], index)
+    }
+    return Promise.allSettled(output)
+  }
+
+  static any (array, callback) {
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    while (++index < length) {
+      output[index] = callback(array[index], index)
+    }
+    return Promise.any(output)
+  }
+  
   static reduce (array, callback, output) {
     const length = array.length
     let index = -1
@@ -322,4 +378,100 @@ class NeuPack {
   }
 }
 
+class AsyncUtil {
+  static all (array, callback) {
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    while (++index < length) {
+      output[index] = callback(array[index], index)
+    }
+    return Promise.all(output)
+  }
+
+  static allSettled (array, callback) {
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    while (++index < length) {
+      output[index] = callback(array[index], index)
+    }
+    return Promise.allSettled(output)
+  }
+
+  static any (array, callback) {
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    while (++index < length) {
+      output[index] = callback(array[index], index)
+    }
+    return Promise.any(output)
+  }
+
+  static async filter (array, callback) {
+    const { length } = array
+    const output = []
+    let outputIndex = -1
+    let index = -1
+
+    async function next (index) {
+      ++index
+      if (index >= length) return output
+      if (await callback(array[index], index)) {
+        output[++outputIndex] = array[index]
+      }
+      return await next(index)
+    }
+
+    return await next(index)
+  }
+
+  static forEach (array, callback) {
+    const { length } = array
+    let index = -1
+
+    async function next (index) {
+      ++index
+      if (index < length) {
+        await callback(array[index], index)
+        await next(index)
+      } else {
+        return array
+      }
+    }
+
+    return next(index)
+  }
+
+  static find (array, callback, search) {
+    const keys = Object.keys(search)
+    const { length } = array
+    const output = new Array(length)
+    let index = -1
+    let keysIndex = -1
+    while (++keysIndex < length) {
+      const key = keys[keysIndex]
+      while (++index < length) {
+        output[index] = callback(array[index], index)
+      }
+    }
+    return Promise.any(output)
+  }
+
+  static includes (array, element) {
+    return new Promise((resolve) => {
+      let index = array.length
+      while (index--) {
+        if (array[index] === element) {
+          return resolve(true)
+        }
+      }
+      return resolve(false)
+    })
+  }
+}
+
 module.exports = NeuPack
+
+module.exports.AsyncUtil = AsyncUtil

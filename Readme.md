@@ -118,3 +118,48 @@ const elementsReverseBack = NeuPack.reverseBack(items, (el, i) => {
   return el
 })
 ```
+
+
+### Methods:
+
+```ts
+class NeuPack {
+  constructor ({input = null, id }): NeuPack
+  keys: Array<string>
+  data: object
+  id: string
+  length: number
+  lastIndex: number
+  nextIndex: number
+  get: (...args?: string[]) => any
+  post: (input: any) => NeuPack
+  patch: (key: string, input: any) => NeuPack
+  delete: (key: string) => NeuPack
+  find: (searchParam: object) => any
+  each: (callback:(element: any, index: number) => void) => Array<any>
+  map: (callback:(element: any, index: number) => any) => Array<any>
+  pack: (callback:(element: any, index: number) => any) => Promise<any[]>
+  all: (callback:(element: any, index: number) => any) => Promise<any[]>
+  allSettled: (callback:(element: any, index: number) => any) => Promise<any[]>
+  any: (callback:(element: any, index: number) => any) => Promise<any[]>
+  reduce: (callback:(element: any, index: number) => void, output: any) => any
+  filter: (callback:(element: any, index: number) => any) => Array<any>
+  range: (array:Array<any>, start: number, end: number) => Array<any>
+  includes: (element: any) => boolean
+
+  static each: (array:Array<any>, callback:(element: any, index: number) => void) => Array<any>
+  static valuedMap: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
+  static map: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
+  static pack: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static all: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static allSettled: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static any: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static reduce: (array:Array<any>, callback:(element: any, index: number) => void, output: any) => any
+  static toObject: (array:Array<any>, key: string) => object
+  static filter: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
+  static range: (array:Array<any>, start: number, end: number) => Array<any>
+  static includes: (array:Array<any>, element: any) => boolean
+  static reverse: (array:Array<any>, callback?:(element: any, index: number) => any) => Array<any>
+  static reverseBack: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
+}
+```

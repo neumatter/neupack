@@ -25,9 +25,16 @@ declare class NeuPack {
    * Delete an item
    */
   delete: (key: string) => NeuPack
+  /**
+   * Can return all data, range of data, or one selected data point.
+   */
+  find: (searchParam: object) => any
   each: (callback:(element: any, index: number) => void) => Array<any>
   map: (callback:(element: any, index: number) => any) => Array<any>
   pack: (callback:(element: any, index: number) => any) => Promise<any[]>
+  all: (callback:(element: any, index: number) => any) => Promise<any[]>
+  allSettled: (callback:(element: any, index: number) => any) => Promise<any[]>
+  any: (callback:(element: any, index: number) => any) => Promise<any[]>
   reduce: (callback:(element: any, index: number) => void, output: any) => any
   filter: (callback:(element: any, index: number) => any) => Array<any>
   range: (array:Array<any>, start: number, end: number) => Array<any>
@@ -40,6 +47,9 @@ declare class NeuPack {
   static valuedMap: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
   static map: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
   static pack: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static all: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static allSettled: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
+  static any: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>
   static reduce: (array:Array<any>, callback:(element: any, index: number) => void, output: any) => any
   static toObject: (array:Array<any>, key: string) => object
   static filter: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
@@ -52,4 +62,4 @@ declare class NeuPack {
   static reverseBack: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
 }
 
-export = NeuPack
+export default NeuPack
