@@ -1,8 +1,14 @@
 
 declare module 'neupack'
 
+declare interface NeuPackOptions {
+  id: string,
+  input?: any,
+  caseSensitive?: boolean
+}
+
 declare class NeuPack {
-  constructor ({input = null, id }): NeuPack
+  constructor (options: NeuPackOptions)
   keys: Array<string>
   data: object
   id: string
@@ -10,40 +16,40 @@ declare class NeuPack {
   get lastIndex (): number
   get nextIndex (): number
   /**
-   * Can return all data, range of data, or one selected data point.
+   * Can return range of data or one selected data point.
    */
-  get: (...args?: string[]) => any
+  get: (...args: string[]) => any
   /**
    * Add a new item to the pack
    */
-  post: (input: any) => NeuPack
+  push: (input: object) => NeuPack
   /**
    * Edits an item
    */
-  patch: (key: string, input: any) => NeuPack
+  edit: (key: string, input: any) => NeuPack
   /**
    * Delete an item
    */
   delete: (key: string) => NeuPack
+  has: (key: string) => boolean
   /**
-   * Can return all data, range of data, or one selected data point.
+   * Can return range of data or one selected data point.
    */
-  find: (searchParam: object) => any
-  each: (callback:(element: any, index: number) => void) => Array<any>
-  map: (callback:(element: any, index: number) => any) => Array<any>
-  pack: (callback:(element: any, index: number) => any) => Promise<any[]>
-  all: (callback:(element: any, index: number) => any) => Promise<any[]>
-  allSettled: (callback:(element: any, index: number) => any) => Promise<any[]>
-  any: (callback:(element: any, index: number) => any) => Promise<any[]>
-  reduce: (callback:(element: any, index: number) => void, output: any) => any
-  filter: (callback:(element: any, index: number) => any) => Array<any>
+  find: (searchParam: object) => Array<object>
+  values: () => Array<object>
+  each: (callback:(value: any, key: string, index: number) => void) => NeuPack
+  some: (callback:(value: any, key: string, index: number) => any) => any
+  map: (callback:(value: any, key: string, index: number) => any) => Array<any>
+  pack: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  all: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  allSettled: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  any: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  reduce: (callback:(container: any, value: any, key: string, index: number) => void, output: any) => any
+  filter: (callback:(value: any, key: string, index: number) => any) => Array<any>
   range: (array:Array<any>, start: number, end: number) => Array<any>
-  includes: (element: any) => boolean
+  includes: (searchParam: object) => boolean
 
   static each: (array:Array<any>, callback:(element: any, index: number) => void) => Array<any>
-  /**
-   * Only returns elements that are not a false or empty type.
-   */
   static valuedMap: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
   static map: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>
   static pack: (array:Array<any>, callback:(element: any, index: number) => any) => Promise<any[]>

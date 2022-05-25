@@ -1,16 +1,19 @@
 
 const is = require('@neumatter/is')
+const toCamelCase = require('@neumatter/to-camel-case')
 
 /**
- * 
+ *
  * @type {import('./types/index').default}
  */
 class NeuPack {
+  #caseSensitive
   constructor ({
+    id,
     input = null,
-    id = null
+    caseSensitive = true
   }) {
-    if (!id) throw new Error('new NeuPack({ id }): id, is required.')
+    this.#caseSensitive = caseSensitive
     this.keys = []
     this.data = {}
     this.id = id
@@ -19,6 +22,7 @@ class NeuPack {
         const { length } = input
         let index = -1
         while (++index < length) {
+          if (!this.#caseSensitive) input[index][this.id] = toCamelCase(input[index][this.id])
           this.keys[index] = input[index][this.id]
           this.data[input[index][this.id]] = input[index]
         }
@@ -41,32 +45,39 @@ class NeuPack {
     return this.length
   }
 
-  /**
-   *
-   * @param {Array} args
-   * @returns
-   */
-  get (...args) {
-    const argsLength = args.length
-    if (!argsLength) return Object.values(this.data)
-    if (argsLength === 1) {
-      const key = args[0]
-      return this.data[key] || null
-    } else {
-      const nodes = NeuPack.map(args, (key) => {
-        return this.data[key] || null
-      })
-      return nodes
-    }
+  values () {
+    return Object.values(this.data)
   }
 
-  post (input) {
+  get (...args) {
+    const { length } = args
+    if (!length) {
+      return Object.values(this.data)
+    }
+    if (length === 1) {
+      if (!this.#caseSensitive) args[0] = toCamelCase(args[0])
+      return this.data[args[0]] || null
+    }
+    let index = length
+    const items = []
+    while (index--) {
+      const key = !this.#caseSensitive
+        ? toCamelCase(args[index])
+        : args[index]
+      if (this.data[key]) items.push(this.data[key])
+    }
+    return items
+  }
+
+  push (input) {
+    if (!this.#caseSensitive) input[this.id] = toCamelCase(input[this.id])
     this.keys[this.nextIndex] = input[this.id]
     this.data[input[this.id]] = input
     return this
   }
 
-  patch (key, input) {
+  edit (key, input) {
+    if (!this.#caseSensitive) key = toCamelCase(key)
     if (this.data[key]) {
       this.data[key] = { ...this.data[key], ...input }
     }
@@ -74,27 +85,36 @@ class NeuPack {
   }
 
   delete (key) {
+    if (!this.#caseSensitive) key = toCamelCase(key)
+    // seperate item from data
     const { [key]: id, ...rest } = this.data
     this.data = rest
-    let index = -1
+    let index = this.length
+    // remove key
     const keys = []
-    while (++index < this.length) {
+    while (index--) {
       if (this.keys[index] !== key) keys.push(this.keys[index])
     }
     this.keys = keys
     return this
   }
 
-  async find (searchParam) {
+  has (key) {
+    if (!this.#caseSensitive) key = toCamelCase(key)
+    if (this.data[key]) return true
+    return false
+  }
+
+  find (searchParam) {
+    let index = this.length
     const response = []
-    const keys = Object.keys(searchParam)
-    await NeuPack.pack(keys, async (key) => {
-      await this.pack(async el => {
-        if (el[key] === searchParam[key]) {
-          response.push(el)
-        }
-      })
-    })
+    const searchKey = Object.keys(searchParam)[0]
+    while (index--) {
+      const key = this.keys[index]
+      if (this.data[key][searchKey] === searchParam[searchKey]) {
+        response.push(this.data[key])
+      }
+    }
     return response
   }
 
@@ -107,14 +127,23 @@ class NeuPack {
     return this
   }
 
-  includes (element) {
+  some (callback) {
+    let index = -1
+    while (++index < this.length) {
+      const key = this.keys[index]
+      const result = callback(this.data[key], key, index)
+      if (result) return result
+    }
+    return null
+  }
+
+  includes (searchParam) {
     let index = this.length
+    const searchKey = Object.keys(searchParam)[0]
     while (index--) {
       const key = this.keys[index]
-      const props = Object.keys(this.data[key])
-      let id = props.length
-      while (id--) {
-        if (this.data[key][props[id]] === element) return true
+      if (this.data[key][searchKey] === searchParam[searchKey]) {
+        return true
       }
     }
     return false
@@ -200,7 +229,7 @@ class NeuPack {
     let index = -1
     while (++index < this.length) {
       const key = this.keys[index]
-      container = callback(container, this.data[key], key)
+      container = callback(container, this.data[key], key, index)
     }
     return container
   }
@@ -330,7 +359,7 @@ class NeuPack {
     }
     return Promise.any(output)
   }
-  
+
   static reduce (array, callback, output) {
     const length = array.length
     let index = -1
@@ -413,7 +442,7 @@ class AsyncUtil {
     const { length } = array
     const output = []
     let outputIndex = -1
-    let index = -1
+    const index = -1
 
     async function next (index) {
       ++index
@@ -429,7 +458,7 @@ class AsyncUtil {
 
   static forEach (array, callback) {
     const { length } = array
-    let index = -1
+    const index = -1
 
     async function next (index) {
       ++index
@@ -442,21 +471,6 @@ class AsyncUtil {
     }
 
     return next(index)
-  }
-
-  static find (array, callback, search) {
-    const keys = Object.keys(search)
-    const { length } = array
-    const output = new Array(length)
-    let index = -1
-    let keysIndex = -1
-    while (++keysIndex < length) {
-      const key = keys[keysIndex]
-      while (++index < length) {
-        output[index] = callback(array[index], index)
-      }
-    }
-    return Promise.any(output)
   }
 
   static includes (array, element) {

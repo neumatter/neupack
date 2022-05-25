@@ -1,6 +1,6 @@
 {
   "name": "neupack",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Module for alternative array methods and for mapping data as an array.",
   "type": "module",
   "author": "Cal Young",
@@ -29,7 +29,8 @@
     "standard": "^16.0.4"
   },
   "dependencies": {
-    "@neumatter/is": "^1.0.2"
+    "@neumatter/is": "^1.0.2",
+    "@neumatter/to-camel-case": "^1.0.1"
   },
   "babel": {
     "targets": {
