@@ -15,6 +15,7 @@ declare class NeuPack {
   get length (): number
   get lastIndex (): number
   get nextIndex (): number
+  get generator (): Generator
   /**
    * Can return range of data or one selected data point.
    */

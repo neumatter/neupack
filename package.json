@@ -1,6 +1,6 @@
 {
   "name": "neupack",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Module for alternative array methods and for mapping data as an array.",
   "type": "module",
   "author": "Cal Young",

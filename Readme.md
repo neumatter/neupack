@@ -37,42 +37,47 @@ const items = [
   { id: 'ID3', name: 'Name 1', rel: '1574' },
   { id: 'ID2', name: 'Name 2', rel: '1574' }
 ]
-const elements = new NeuPack({
+const pack = new NeuPack({
   input: items,
   id: 'id'
 })
 
-/** 
- *
- * @param {string}
- * @returns {boolean} true
-*/
-elements.includes('Name 1')
-/** 
- *
- * @param {callback}
- * @returns {Array<any>} filtered array
-*/
-elements.filter(el => el.rel === '1574')
-/** 
- *
- * @param {string}
- * @param {object}
- * @returns {NeuPack} edits the selected item
-*/
-elements.patch('NM587', { rel: '2000' })
-/** 
- *
- * @param {string}
- * @returns {NeuPack} deletes the selected item
-*/
-elements.delete('NM202')
-/** 
- *
- * @param {object}
- * @returns {NeuPack} adds a new item to pack
-*/
-elements.post({ id: 'NM456', name: 'NeuTest', rel: '2020' })
+pack.includes('Name 1')
+pack.filter(el => el.rel === '1574')
+pack.edit('NM587', { rel: '2000' })
+pack.delete('NM202')
+pack.push({ id: 'NM456', name: 'NeuTest', rel: '2020' })
+
+for (const el of pack) {
+  // do something with el
+}
+
+const arr = await pack.all(async el => {
+  // do something async with el
+})
+
+const arr = await pack.allSettled(async el => {
+  // do something async with el
+})
+
+const arr = await pack.any(async el => {
+  // do something async with el
+})
+
+const arr = pack.map(el => {
+  // do something with el
+})
+
+const result = pack.some(el => {
+  // do something with el
+})
+
+pack.each(el => {
+  // do something with el
+})
+
+const packGenerator = pack.generator // get generator
+packGenerator.next() // get next { value, done }
 ```
 
 
@@ -93,11 +98,11 @@ NeuPack.each(items, (el, i) => {
   console.log(el)
 })
 
-const elementsMap = NeuPack.map(items, (el, i) => {
+const packMap = NeuPack.map(items, (el, i) => {
   return el
 })
 
-const elementsValuedMap = NeuPack.valuedMap(items, (el, i) => {
+const packValuedMap = NeuPack.valuedMap(items, (el, i) => {
   return el || null
 })
 
@@ -105,16 +110,16 @@ const elementsValuedMap = NeuPack.valuedMap(items, (el, i) => {
  * Awaits for each callback to finish.
  * Similar to [ await Promise.all(items.map(asyncFn)) ]
  */
-const elementsPack = await NeuPack.pack(items, async (el, i) => {
+const packPack = await NeuPack.pack(items, async (el, i) => {
   return el
 })
 
-const elementsToObject = NeuPack.toObject(items, 'id')
+const packToObject = NeuPack.toObject(items, 'id')
 
 /**
  * Runs callback on each element while in reverse and reverses the array back on return.
  */
-const elementsReverseBack = NeuPack.reverseBack(items, (el, i) => {
+const packReverseBack = NeuPack.reverseBack(items, (el, i) => {
   return el
 })
 ```
@@ -131,21 +136,25 @@ class NeuPack {
   length: number
   lastIndex: number
   nextIndex: number
-  get: (...args?: string[]) => any
-  post: (input: any) => NeuPack
-  patch: (key: string, input: any) => NeuPack
+
+  get: (...args: string[]) => any
+  push: (input: object) => NeuPack
+  edit: (key: string, input: any) => NeuPack
   delete: (key: string) => NeuPack
-  find: (searchParam: object) => any
-  each: (callback:(element: any, index: number) => void) => Array<any>
-  map: (callback:(element: any, index: number) => any) => Array<any>
-  pack: (callback:(element: any, index: number) => any) => Promise<any[]>
-  all: (callback:(element: any, index: number) => any) => Promise<any[]>
-  allSettled: (callback:(element: any, index: number) => any) => Promise<any[]>
-  any: (callback:(element: any, index: number) => any) => Promise<any[]>
-  reduce: (callback:(element: any, index: number) => void, output: any) => any
-  filter: (callback:(element: any, index: number) => any) => Array<any>
+  has: (key: string) => boolean
+  find: (searchParam: object) => Array<object>
+  values: () => Array<object>
+  each: (callback:(value: any, key: string, index: number) => void) => NeuPack
+  some: (callback:(value: any, key: string, index: number) => any) => any
+  map: (callback:(value: any, key: string, index: number) => any) => Array<any>
+  pack: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  all: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  allSettled: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  any: (callback:(value: any, key: string, index: number) => Promise<any>) => Promise<any[]>
+  reduce: (callback:(container: any, value: any, key: string, index: number) => void, output: any) => any
+  filter: (callback:(value: any, key: string, index: number) => any) => Array<any>
   range: (array:Array<any>, start: number, end: number) => Array<any>
-  includes: (element: any) => boolean
+  includes: (searchParam: object) => boolean
 
   static each: (array:Array<any>, callback:(element: any, index: number) => void) => Array<any>
   static valuedMap: (array:Array<any>, callback:(element: any, index: number) => any) => Array<any>

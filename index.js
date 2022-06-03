@@ -29,6 +29,10 @@ export default class NeuPack {
     }
   }
 
+  get [Symbol.toStringTag] () {
+    return 'NeuPack'
+  }
+
   get length () {
     return this.keys.length
   }
@@ -41,8 +45,29 @@ export default class NeuPack {
     return this.length
   }
 
+  get generator () {
+    const length = this.length
+    const keys = this.keys
+    const data = this.data
+    function * generateFn () {
+      let index = -1
+      while (++index < length) {
+        const key = keys[index]
+        yield data[key]
+      }
+    }
+    return generateFn()
+  }
+
+  * [Symbol.iterator] () {
+    let index = -1
+    while (++index < this.length) {
+      yield this.data[this.keys[index]]
+    }
+  }
+
   values () {
-    return Object.values(this.data)
+    return [...this.generator]
   }
 
   get (...args) {
@@ -254,6 +279,18 @@ export default class NeuPack {
       callback(array[index], index)
     }
     return array
+  }
+
+  static generateMap (array, callback) {
+    function * generateObj () {
+      const { length } = array
+      let index = -1
+      while (++index < length) {
+        yield callback(array[index], index)
+      }
+    }
+    const generator = generateObj()
+    return [...generator]
   }
 
   static includes (array, element) {
